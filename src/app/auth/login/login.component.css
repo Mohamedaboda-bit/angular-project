@@ -1,0 +1,56 @@
+.bg-light {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%) !important;
+}
+
+.card {
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.form-control:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+}
+
+.btn-primary {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #357abd;
+  border-color: #357abd;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+  opacity: 0.65;
+}
+
+.form-floating label {
+  color: #6c757d;
+}
+
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: #fff2f2;
+  color: #dc3545;
+}
+
+a {
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #357abd !important;
+}

@@ -1,13 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-
+import { catchError, tap } from 'rxjs/operators';
+import { CanActivate, Router } from '@angular/router';
 
 interface AuthResponse {
   status: string;
   token: string;
-  data: { user: any }; 
+  data: { 
+    user: {
+      id: string;
+      email: string;
+      username?: string;
+      role: 'admin' | 'user';
+    } 
+  };
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
 interface ApiResponse {
@@ -69,24 +81,67 @@ export class BackendService {
 
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'An unknown error occurred!';
+    
     if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error: ${error.error.message}`;
+      // Client-side error
+      errorMessage = error.error.message;
     } else {
-
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.error?.message || error.statusText}`;
+      // Server-side error
+      if (error.status === 401) {
+        errorMessage = 'Invalid credentials. Please check your email and password.';
+      } else if (error.status === 403) {
+        errorMessage = 'Access denied. You do not have permission to perform this action.';
+      } else if (error.status === 404) {
+        errorMessage = 'User not found. Please check your credentials.';
+      } else if (error.status === 409) {
+        errorMessage = 'This email is already registered. Please try logging in.';
+      } else if (error.error?.message) {
+        errorMessage = error.error.message;
+      } else if (error.status === 0) {
+        errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      }
     }
-    console.error(errorMessage);
-    return throwError(() => new Error(errorMessage)); 
+    
+    return throwError(() => new Error(errorMessage));
   }
 
   register(userData: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(response => {
+          if (response.data?.user) {
+            localStorage.setItem('userRole', response.data.user.role);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
-  login(credentials: any): Observable<AuthResponse> {
+  login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
-      .pipe(catchError(this.handleError));
+      .pipe(
+        tap(response => {
+          if (response.data?.user) {
+            localStorage.setItem('userRole', response.data.user.role);
+            localStorage.setItem('userData', JSON.stringify(response.data.user));
+          }
+        }),
+        catchError(this.handleError)
+      );
+  }
+
+  logout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userRole');
+  }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('authToken');
+  }
+
+  isAdmin(): boolean {
+    return localStorage.getItem('userRole') === 'admin';
   }
 
   getAvailableExams(): Observable<ApiResponse> { 
@@ -164,5 +219,21 @@ export class BackendService {
       .pipe(catchError(this.handleError));
   }
 
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AdminGuard implements CanActivate {
+  constructor(private backendService: BackendService, private router: Router) {}
+
+  canActivate(): boolean {
+    if (this.backendService.isAdmin()) {
+      return true;
+    } else {
+      this.router.navigate(['/student-home']);
+      return false;
+    }
+  }
 }
 

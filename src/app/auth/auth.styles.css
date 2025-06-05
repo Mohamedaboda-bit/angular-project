@@ -1,0 +1,227 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  padding: 2rem 1rem;
+}
+
+.auth-wrapper {
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.auth-box {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.auth-tabs {
+  display: flex;
+  margin: -1rem -1rem 2rem -1rem;
+  border-bottom: 2px solid #e9ecef;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-tabs li {
+  flex: 1;
+}
+
+.auth-tab-link {
+  display: block;
+  text-align: center;
+  padding: 1.25rem;
+  color: #6c757d;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.auth-tab-link:hover {
+  color: #4a90e2;
+}
+
+.auth-tab-link.active {
+  color: #4a90e2;
+}
+
+.auth-tab-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #4a90e2;
+  transition: all 0.3s ease;
+}
+
+.card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-body {
+  padding: 2.5rem !important;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 2rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.form-control {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.form-control:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+}
+
+.form-control::placeholder {
+  color: #adb5bd;
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+  padding-right: calc(1.5em + 0.75rem);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-check {
+  padding-left: 1.75rem;
+}
+
+.form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: -1.75rem;
+  margin-top: 0.125rem;
+  border: 2px solid #adb5bd;
+  transition: all 0.2s ease;
+}
+
+.form-check-input:checked {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.form-check-input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+}
+
+.form-check-label {
+  color: #495057;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  padding: 1rem 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #357abd;
+  border-color: #357abd;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+}
+
+.btn-primary:disabled {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+  opacity: 0.65;
+}
+
+.alert {
+  border-radius: 10px;
+  border: none;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+.alert-danger {
+  background-color: #fff2f2;
+  color: #dc3545;
+}
+
+.alert-success {
+  background-color: #f0fff4;
+  color: #28a745;
+}
+
+.invalid-feedback {
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  color: #dc3545;
+}
+
+.text-center.mb-4 {
+  margin: 0.5rem 0 2.5rem 0;
+}
+
+.text-center.mt-4 {
+  margin-top: 2rem !important;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.alert {
+  animation: fadeIn 0.3s ease-in-out;
+} 
