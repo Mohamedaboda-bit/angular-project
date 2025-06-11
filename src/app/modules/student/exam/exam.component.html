@@ -1,0 +1,56 @@
+<div class="container py-4">
+  @if (loading) {
+    <div class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger">
+      {{ error }}
+    </div>
+  }
+
+  @if (exam && !loading) {
+    <h1 class="mb-4">{{ exam.title }}</h1>
+    <p class="lead mb-4">{{ exam.description }}</p>
+
+    <form [formGroup]="examForm" (ngSubmit)="onSubmit()">
+      <div formArrayName="answers">
+        @for (question of exam.questions; track $index) {
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Question {{ $index + 1 }}</h5>
+              <p class="card-text">{{ question.text }}</p>
+
+              <div [formGroupName]="$index">
+                @for (option of question.options; track $index) {
+                  <div class="form-check">
+                    <input class="form-check-input"
+                           type="radio"
+                           [id]="'q' + $index + 'opt' + $index"
+                           [value]="$index.toString()"
+                           formControlName="selectedAnswer">
+                    <label class="form-check-label" [for]="'q' + $index + 'opt' + $index">
+                      {{ option }}
+                    </label>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="d-grid gap-2">
+        <button type="submit"
+                class="btn btn-primary btn-lg"
+                [disabled]="!examForm.valid || submitting">
+          {{ submitting ? 'Submitting...' : 'Submit Exam' }}
+        </button>
+      </div>
+    </form>
+  }
+</div> 

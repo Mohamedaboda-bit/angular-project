@@ -1,0 +1,11 @@
+.container {
+  max-width: 900px;
+}
+.table {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.badge {
+  font-size: 1rem;
+}

@@ -1,0 +1,55 @@
+<div class="container py-5">
+  <h2 class="mb-4">My Exam Results</h2>
+
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error && results.length > 0) {
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Exam</th>
+            <th>Score</th>
+            <th>Percentage</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (result of results; track result._id) {
+            <tr>
+              <td>{{ result.exam?.title || 'Unknown Exam' }}</td>
+              <td>{{ result.score }} / {{ result.totalQuestions }}</td>
+              <td>
+                <span class="badge px-3 py-2 fs-6" [class.bg-success]="result.percentage >= 70" 
+                                  [class.bg-warning]="result.percentage >= 50 && result.percentage < 70"
+                                  [class.bg-danger]="result.percentage < 50">
+                  {{ result.percentage }}%
+                </span>
+              </td>
+              <td>{{ result.createdAt | date:'medium' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!loading && !error && results.length === 0) {
+    <div class="text-center py-5 text-muted">
+      <h4>No results found yet.</h4>
+      <p>Take an exam to see your results here.</p>
+    </div>
+  }
+</div>
