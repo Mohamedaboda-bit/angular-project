@@ -1,23 +1,24 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { ExamCreatorComponent } from './pages/exam-creator/exam-creator.component';
 
 const routes: Routes = [
-  {
-    path: 'admin',
+  { 
+    path: '', 
     children: [
-      { path: 'dashboard', component: AdminDashboardComponent }
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'profile', component: ProfileComponent },
+      { path: 'create-exam', component: ExamCreatorComponent },
+      { path: 'edit-exam/:id', component: ExamCreatorComponent },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }
 ];
 
 @NgModule({
-  declarations: [],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(routes),
-    AdminDashboardComponent
-  ]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
 })
 export class AdminModule { } 

@@ -1,19 +1,21 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './modules/student/home/home';
-import { AdminDashboardComponent } from './modules/admin/admin-dashboard/admin-dashboard.component';
+import { AuthGuard, AdminGuard, AuthNavigationGuard } from '../services/auth.guard';
+import { LoginComponent } from './auth/login/login.component';
+import { RegisterComponent } from './auth/register/register.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent, canActivate: [AuthNavigationGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [AuthNavigationGuard] },
   {
-    path: '',
-    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
+    path: 'student',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./modules/student/student.module').then(m => m.StudentModule)
   },
   {
-    path: 'student-home',
-    component: DashboardComponent
+    path: 'admin',
+    canActivate: [AuthGuard, AdminGuard],
+    loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule)
   },
-  {
-    path: 'admin-dashboard',
-    component: AdminDashboardComponent
-  }
+  { path: '**', redirectTo: '/login' } 
 ];

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { BackendService } from '../../../services/backend.service';
 import { CommonModule } from '@angular/common';
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css', '../auth.styles.css'],
+  styleUrls: ['../auth.styles.css'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, RouterLinkActive]
 })
@@ -22,7 +22,7 @@ export class RegisterComponent {
     private auth: BackendService,
     private router: Router
   ) {
-    this.registerForm = this.fb.group({
+    this.registerForm = this.fb.nonNullable.group({
       username: ['', [
         Validators.required,
         Validators.minLength(3),
@@ -52,10 +52,10 @@ export class RegisterComponent {
   }
 
   // Getter methods for easy access in template
-  get username() { return this.registerForm.get('username'); }
-  get email() { return this.registerForm.get('email'); }
-  get password() { return this.registerForm.get('password'); }
-  get passwordConfirm() { return this.registerForm.get('passwordConfirm'); }
+  get username() { return this.registerForm.get('username')!; }
+  get email() { return this.registerForm.get('email')!; }
+  get password() { return this.registerForm.get('password')!; }
+  get passwordConfirm() { return this.registerForm.get('passwordConfirm')!; }
 
   onInputChange() {
     if (this.hasAttemptedSubmit && this.errorMessage) {
@@ -63,19 +63,14 @@ export class RegisterComponent {
     }
   }
 
-  passwordMatchValidator(form: FormGroup) {
+  passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
     const password = form.get('password');
     const passwordConfirm = form.get('passwordConfirm');
     
     if (password && passwordConfirm && password.value !== passwordConfirm.value) {
-      passwordConfirm.setErrors({ passwordMismatch: true });
-    } else {
-      const currentErrors = passwordConfirm?.errors;
-      if (currentErrors) {
-        delete currentErrors['passwordMismatch'];
-        passwordConfirm?.setErrors(Object.keys(currentErrors).length ? currentErrors : null);
-      }
+      return { passwordMismatch: true };
     }
+    return null;
   }
 
   passwordStrengthValidator(control: AbstractControl): {[key: string]: boolean} | null {
@@ -94,9 +89,11 @@ export class RegisterComponent {
 
   onSubmit() {
     this.hasAttemptedSubmit = true;
+  
     if (this.registerForm.valid) {
       this.isSubmitting = true;
       const { passwordConfirm, ...registrationData } = this.registerForm.value;
+  
       this.auth.register(registrationData).subscribe({
         next: (response) => {
           localStorage.setItem('authToken', response.token);
@@ -112,16 +109,10 @@ export class RegisterComponent {
         }
       });
     } else {
-      this.markFormGroupTouched(this.registerForm);
+      Object.values(this.registerForm.controls).forEach(control => {
+        control.markAsTouched();
+      });
     }
   }
-
-  private markFormGroupTouched(formGroup: FormGroup) {
-    Object.values(formGroup.controls).forEach(control => {
-      control.markAsTouched();
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      }
-    });
-  }
+  
 }

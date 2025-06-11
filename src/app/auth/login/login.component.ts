@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BackendService } from '../../../services/backend.service';
 import { CommonModule } from '@angular/common';
 
@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css', '../auth.styles.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, RouterLinkActive]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink]
 })
 export class LoginComponent {
   loginForm: FormGroup;
@@ -37,72 +37,60 @@ export class LoginComponent {
   }
 
   // Getter methods for easy access in template
-  get email() { return this.loginForm.get('email'); }
-  get password() { return this.loginForm.get('password'); }
+  get email() { return this.loginForm.get('email')!; }
+  get password() { return this.loginForm.get('password')!; }
 
   onInputChange() {
-    // Only clear error message if user has attempted to submit before
     if (this.hasAttemptedSubmit) {
-      const currentEmail = this.email?.value;
-      const currentPassword = this.password?.value;
-      
-      // Clear error message only if the user has changed the input values
-      if (currentEmail !== this.loginForm.value.email || currentPassword !== this.loginForm.value.password) {
-        this.errorMessage = '';
-      }
+      this.errorMessage = '';
     }
   }
 
   onSubmit() {
     this.hasAttemptedSubmit = true;
-    
+  
     if (this.loginForm.valid) {
       this.isSubmitting = true;
-      this.errorMessage = ''; // Clear any previous error messages
-      
-      const credentials = {
-        ...this.loginForm.value
-      };
-
+      this.errorMessage = '';
+  
+      const credentials = { ...this.loginForm.value };
+  
       this.auth.login(credentials).subscribe({
         next: (response) => {
-          if (response.token) {
-            localStorage.setItem('authToken', response.token);
-            if (response.data?.user) {
-              localStorage.setItem('userData', JSON.stringify(response.data.user));
-              this.successMessage = `Welcome back${response.data.user.username ? ', ' + response.data.user.username : ''}!`;
-              
-              // Route based on user role
-              const targetRoute = response.data.user.role === 'admin' ? '/admin-dashboard' : '/student-home';
-              
-              // Delay navigation to show success message
-              setTimeout(() => {
-                this.router.navigate([targetRoute]);
-              }, 2000);
-            }
+          if (response && response.token && response.data?.user) {
+            const token = response.token.startsWith('Bearer ') ? response.token : `Bearer ${response.token}`;
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('userData', JSON.stringify(response.data.user));
+            localStorage.setItem('userRole', response.data.user.role);
+  
+            this.successMessage = `Welcome back${response.data.user.username ? ', ' + response.data.user.username : ''}!`;
+  
+            const targetRoute = response.data.user.role === 'admin' ? '/admin/dashboard' : '/student/home';
+  
+            setTimeout(() => {
+              this.router.navigate([targetRoute]);
+            }, 1000);
+          } else {
+            this.errorMessage = 'Invalid response from server';
+            this.isSubmitting = false;
           }
         },
         error: (error) => {
           console.error('Login error:', error);
           this.isSubmitting = false;
-          this.errorMessage = error.message || 'Invalid email or password. Please try again.';
-          this.loginForm.enable(); // Re-enable the form
+          this.errorMessage = 'Invalid email or password. Please try again.';
+          this.loginForm.enable();
         },
         complete: () => {
           this.isSubmitting = false;
         }
       });
     } else {
-      this.markFormGroupTouched(this.loginForm);
+      // Mark all controls as touched to show validation errors
+      Object.values(this.loginForm.controls).forEach(control => {
+        control.markAsTouched();
+      });
     }
   }
-
-  private markFormGroupTouched(formGroup: FormGroup) {
-    Object.values(formGroup.controls).forEach(control => {
-      control.markAsTouched();
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      }
-    });
-  }
+  
 }
