@@ -6,7 +6,7 @@ import { ExamCreatorComponent } from './pages/exam-creator/exam-creator.componen
 
 const routes: Routes = [
   { 
-    path: '', 
+    path: '',  
     children: [
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'profile', component: ProfileComponent },
