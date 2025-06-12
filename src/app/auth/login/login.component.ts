@@ -36,7 +36,7 @@ export class LoginComponent {
     });
   }
 
-  // Getter methods for easy access in template
+  
   get email() { return this.loginForm.get('email')!; }
   get password() { return this.loginForm.get('password')!; }
 
@@ -76,7 +76,7 @@ export class LoginComponent {
           }
         },
         error: (error) => {
-          console.error('Login error:', error);
+          // console.error('Login error:', error);
           this.isSubmitting = false;
           this.errorMessage = 'Invalid email or password. Please try again.';
           this.loginForm.enable();
@@ -86,7 +86,7 @@ export class LoginComponent {
         }
       });
     } else {
-      // Mark all controls as touched to show validation errors
+      
       Object.values(this.loginForm.controls).forEach(control => {
         control.markAsTouched();
       });

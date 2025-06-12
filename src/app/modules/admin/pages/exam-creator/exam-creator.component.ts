@@ -34,12 +34,12 @@ export class ExamCreatorComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Check if we're in edit mode by looking for an exam ID in the route
+    
     this.route.params.subscribe(params => {
-      console.log('ExamCreator - Route params:', params); // Debug log
+      // console.log('ExamCreator - Route params:', params); 
       const id = params['id'];
       if (id) {
-        console.log('ExamCreator - Found exam ID in route:', id); // Debug log
+        // console.log('ExamCreator - Found exam ID in route:', id); 
         console.log('ExamCreator - Auth state:', {
           isLoggedIn: this.backendService.isLoggedIn(),
           isAdmin: this.backendService.isAdmin(),
@@ -51,40 +51,46 @@ export class ExamCreatorComponent implements OnInit {
         this.loadExam(id);
       }
     });
+
   }
 
   loadExam(examId: string) {
     this.loading = true;
     this.error = null;
-    console.log('Loading exam with ID:', examId); // Debug log
+    // console.log('Loading exam with ID:', examId); 
 
     this.backendService.getExamAdmin(examId).subscribe({
       next: (response: ApiResponse) => {
-        console.log('Exam response:', response); // Debug log
+        // console.log('Exam response:', response); 
         if (response.status === 'success' && response.data?.exam) {
           const exam = response.data.exam;
           
-          // Reset form with existing exam data
+          
           this.examForm.patchValue({
             title: exam.title,
             description: exam.description
           });
 
-          // Clear existing questions array
+          
           while (this.questions.length) {
             this.questions.removeAt(0);
           }
 
-          // Add each question from the exam
+          
           exam.questions?.forEach((question: Question) => {
             const questionForm = this.fb.group({
               _id: [question._id || null],
               text: [question.text, Validators.required],
               options: this.fb.array([]),
-              correctAnswer: [question.correctAnswer || '0', Validators.required]  // Default to first option if not set
+              correctAnswer: [
+                question.options.findIndex(opt => opt === question.correctAnswer) !== -1
+                  ? question.options.findIndex(opt => opt === question.correctAnswer)
+                  : 0,
+                Validators.required
+              ]  
             });
 
-            // Add options to the question
+            
             const optionsArray = questionForm.get('options') as FormArray;
             question.options.forEach((option: string) => {
               optionsArray.push(this.fb.control(option, Validators.required));
@@ -96,7 +102,7 @@ export class ExamCreatorComponent implements OnInit {
         this.loading = false;
       },
       error: (error: any) => {
-        console.error('Error loading exam:', error);
+        // console.error('Error loading exam:', error);
         this.error = error.message || 'An error occurred while loading the exam';
         this.loading = false;
       }
@@ -125,8 +131,9 @@ export class ExamCreatorComponent implements OnInit {
       ]),
       correctAnswer: [0, Validators.required]
     });
-
+  
     this.questions.push(questionForm);
+
   }
 
   addOption(questionIndex: number) {
@@ -140,7 +147,7 @@ export class ExamCreatorComponent implements OnInit {
   }
 
   removeQuestion(questionIndex: number) {
-    // Count how many questions will remain with _id after removal
+    
     const questionsAfterRemoval = this.questions.controls
       .filter((q, idx) => idx !== questionIndex && q.value._id);
     if (questionsAfterRemoval.length === 0) {
@@ -155,7 +162,7 @@ export class ExamCreatorComponent implements OnInit {
     const questionControl = this.questions.at(questionIndex);
     const questionId = questionControl.value._id;
     if (!questionId) {
-      // If question is not yet saved in backend, just remove from form
+      
       this.questions.removeAt(questionIndex);
       return;
     }
@@ -183,63 +190,70 @@ export class ExamCreatorComponent implements OnInit {
         questions: this.examForm.value.questions.map((q: any) => ({
           text: q.text,
           options: q.options.filter((opt: string) => opt.trim() !== ''),
-          correctAnswer: q.options[q.correctAnswer],  // Use the value, not the index
+          correctAnswer: q.options[q.correctAnswer],  
         })),
-        isActive: true // Make exam active by default
+        isActive: true 
       };
 
       console.log('Submitting exam data:', { 
         isEditMode: this.isEditMode, 
         examId: this.examId, 
         examData: JSON.stringify(examData, null, 2)
-      }); // Debug log
+      }); 
 
       let request: Observable<ApiResponse>;
       if (this.isEditMode && this.examId) {
-        console.log('Updating exam with ID:', this.examId); // Debug log
+        // console.log('Updating exam with ID:', this.examId); 
         request = this.backendService.updateExam(this.examId, examData);
       } else {
-        console.log('Creating new exam'); // Debug log
+        // console.log('Creating new exam'); 
         request = this.backendService.createExam(examData);
       }
 
       request.subscribe({
         next: (response: ApiResponse) => {
-          console.log('Save response:', response); // Debug log
+          // console.log('Save response:', response); 
           if (response.status === 'success') {
-            // Get the created/updated exam ID
             const examId = this.isEditMode ? this.examId : response.data?.exam?._id;
             if (examId) {
-              // Handle questions: add new and update existing
-              const questionRequests = this.questions.controls.map((questionControl) => {
-                const q = questionControl.value;
-                const questionData = {
-                  text: q.text,
-                  options: q.options,
-                  correctAnswer: q.options[q.correctAnswer] // Use the value, not the index
-                };
-                if (!q._id) {
-                  // New question: add to backend
-                  return this.backendService.addQuestion(examId, questionData);
-                } else {
-                  // Existing question: update in backend
-                  return this.backendService.updateQuestion(examId, q._id, questionData);
-                }
-              });
-              if (questionRequests.length > 0) {
-                forkJoin(questionRequests).subscribe({
-                  next: () => {
-                    this.router.navigate(['/admin/dashboard']).then(() => {
-                      this.error = null;
-                      this.loading = false;
-                    });
-                  },
-                  error: (err) => {
-                    this.error = err.message || 'Failed to save questions.';
-                    this.loading = false;
+              if (this.isEditMode) {
+                
+                const questionRequests = this.questions.controls.map((questionControl) => {
+                  const q = questionControl.value;
+                  const questionData = {
+                    text: q.text,
+                    options: q.options,
+                    correctAnswer: q.options[q.correctAnswer]
+                  };
+                  if (!q._id) {
+                    
+                    return this.backendService.addQuestion(examId, questionData);
+                  } else {
+                    
+                    return this.backendService.updateQuestion(examId, q._id, questionData);
                   }
                 });
+                if (questionRequests.length > 0) {
+                  forkJoin(questionRequests).subscribe({
+                    next: () => {
+                      this.router.navigate(['/admin/dashboard']).then(() => {
+                        this.error = null;
+                        this.loading = false;
+                      });
+                    },
+                    error: (err) => {
+                      this.error = err.message || 'Failed to save questions.';
+                      this.loading = false;
+                    }
+                  });
+                } else {
+                  this.router.navigate(['/admin/dashboard']).then(() => {
+                    this.error = null;
+                    this.loading = false;
+                  });
+                }
               } else {
+                
                 this.router.navigate(['/admin/dashboard']).then(() => {
                   this.error = null;
                   this.loading = false;
@@ -257,18 +271,18 @@ export class ExamCreatorComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          console.error('Error saving exam:', error);
+          // console.error('Error saving exam:', error);
           this.error = error.message || 'An error occurred while saving the exam';
           this.loading = false;
         }
       });
     } else {
-      // Mark all fields as touched to trigger validation messages
+      
       Object.keys(this.examForm.controls).forEach(key => {
         const control = this.examForm.get(key);
         control?.markAsTouched();
       });
-      // For the questions form array
+      
       const questions = this.examForm.get('questions') as FormArray;
       questions.controls.forEach(question => {
         Object.keys(question.value).forEach(key => {

@@ -40,7 +40,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     private router: Router,
     public backendService: BackendService
   ) {
-    // Check authentication and admin status
+    
     if (!this.backendService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
@@ -51,13 +51,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Prevent browser back/forward navigation
+    
     history.pushState(null, '', window.location.href);
     this.popStateSubscription = fromEvent(window, 'popstate').subscribe(() => {
       history.pushState(null, '', window.location.href);
     });
 
-    // Subscribe to router events to refresh data
+    
     this.navigationSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -68,7 +68,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Check authentication and admin status again
+    
     if (!this.backendService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
@@ -95,7 +95,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     
-    // Check authentication before making the request
+    
     if (!this.backendService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
@@ -114,7 +114,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         if (error.status === 401) {
-          // If unauthorized, redirect to login
+          
           this.router.navigate(['/login']);
         } else {
           this.error = error.message || 'An error occurred while loading exams';
@@ -135,7 +135,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   editExam(exam: Exam): void {
-    // Debug logging
+    
     console.log('Edit exam clicked:', {
       examId: exam._id,
       isLoggedIn: this.backendService.isLoggedIn(),
@@ -144,7 +144,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       userRole: localStorage.getItem('userRole')
     });
 
-    // Navigate to edit exam page with correct path
+    
     this.router.navigate(['/admin/edit-exam', exam._id]);
   }
 
@@ -168,7 +168,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   logout() {
     this.backendService.logout();
     this.router.navigate(['/login']).then(() => {
-      window.location.reload(); // Force reload to clear any cached data
+      window.location.reload(); 
     });
   }
 
@@ -181,33 +181,35 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     this.loadingResults = true;
     
-    // Create an array of observables for each exam's results
+    
     const resultObservables = this.currentExams.map(exam => 
       this.backendService.getResultsForExam(exam._id!).pipe(
         map(response => response.data?.results || []),
         catchError(error => {
-          console.error(`Error loading results for exam ${exam._id}:`, error);
-          return of([]); // Return empty array on error
+          // console.error(`Error loading results for exam ${exam._id}:`, error);
+          return of([]); 
         })
       )
     );
 
-    // Use forkJoin to wait for all observables to complete
+    
     forkJoin(resultObservables).subscribe({
       next: (resultsArrays) => {
-        // Flatten the array of arrays into a single array of results
+        
         this.examResults = resultsArrays.flat();
+        // console.log(this.examResults);
+
         this.stats.completed = this.examResults.length;
         this.loadingResults = false;
       },
       error: (err) => {
-        console.error('Error loading results:', err);
+        // console.error('Error loading results:', err);
         this.loadingResults = false;
       }
     });
   }
 
-  // Add method to handle profile navigation
+  
   navigateToProfile() {
     this.router.navigate(['/admin/profile']);
   }
@@ -215,5 +217,22 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   handleImageError() {
     const username = this.backendService.getUserData()?.username || 'A';
     this.profileImageUrl = `https://ui-avatars.com/api/?name=${username}&background=random`;
+  }
+
+  toggleExamStatus(exam: Exam) {
+    const updatedStatus = !exam.isActive;
+    this.backendService.updateExam(exam._id!, { isActive: updatedStatus }).subscribe({
+      next: (response) => {
+        if (response.status === 'success') {
+          exam.isActive = updatedStatus;
+          this.calculateStats();
+        } else {
+          this.error = 'Failed to update exam status.';
+        }
+      },
+      error: (err) => {
+        this.error = err.message || 'Failed to update exam status.';
+      }
+    });
   }
 }

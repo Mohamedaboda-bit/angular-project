@@ -43,7 +43,7 @@ export class RegisterComponent {
       validators: this.passwordMatchValidator
     });
 
-    // Clear error message when user starts typing
+    
     this.registerForm.valueChanges.subscribe(() => {
       if (this.errorMessage) {
         this.errorMessage = '';
@@ -51,7 +51,7 @@ export class RegisterComponent {
     });
   }
 
-  // Getter methods for easy access in template
+  
   get username() { return this.registerForm.get('username')!; }
   get email() { return this.registerForm.get('email')!; }
   get password() { return this.registerForm.get('password')!; }
@@ -105,7 +105,7 @@ export class RegisterComponent {
         error: (error) => {
           this.isSubmitting = false;
           this.errorMessage = error.message || 'Registration failed. Please try again.';
-          console.error('Registration failed:', error);
+          // console.error('Registration failed:', error);
         }
       });
     } else {

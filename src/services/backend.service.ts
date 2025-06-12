@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { CanActivate, Router } from '@angular/router';
 
-// Custom error class for application-specific errors
+
 export class AppError extends Error {
   constructor(message: string, public status?: number, public code?: string) {
     super(message);
@@ -77,22 +77,22 @@ export interface Result {
 })
 export class BackendService {
 
-  private apiUrl = 'http://localhost:3000/api/v1'; 
+  private apiUrl = 'http://localhost:3000/api/v1';
 
   constructor(private http: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken'); 
-    console.log('Current auth token:', token); // Debug log
+    // console.log('Current auth token:', token); 
     
     if (!token) {
-      console.error('Auth token not found!');
+      // console.error('Auth token not found!');
       return new HttpHeaders({ 'Content-Type': 'application/json' });
     }
 
-    // Ensure token has Bearer prefix
+    
     const finalToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-    console.log('Using token:', finalToken); // Debug log
+    // console.log('Using token:', finalToken); 
     
     return new HttpHeaders({
       'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ export class BackendService {
     let errorMessage = 'An unknown error occurred!';
     let status = error.status;
     
-    // Log the full error for debugging
+    
     console.error('Full error details:', {
       status: error.status,
       statusText: error.statusText,
@@ -114,10 +114,10 @@ export class BackendService {
     });
 
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
+      
       errorMessage = error.error.message;
     } else {
-      // Server-side error
+      
       if (error.status === 401) {
         errorMessage = 'Invalid credentials or session expired. Please log in again.';
       } else if (error.status === 403) {
@@ -131,9 +131,9 @@ export class BackendService {
           errorMessage = 'Resource not found.';
         }
       } else if (error.status === 409) {
-        errorMessage = 'This email is already registered. Please try logging in.';
+        errorMessage = 'This exam has already been submitted';
       } else if (error.status === 500) {
-        // Handle specific 500 errors
+        
         if (error.error?.message) {
           errorMessage = `Server error: ${error.error.message}`;
         } else if (error.error?.error?.message) {
@@ -187,12 +187,12 @@ export class BackendService {
   }
 
   logout() {
-    // Clear all auth-related data
+    
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     localStorage.removeItem('userRole');
     
-    // Clear browser history to prevent back navigation after logout
+    
     if (window.history && window.history.pushState) {
       window.history.pushState(null, '', window.location.href);
       window.history.replaceState(null, '', window.location.href);
@@ -261,24 +261,24 @@ export class BackendService {
     examId: string, 
     answers: { 
       questionId: string, 
-      selectedAnswer: number 
+      selectedOption: string 
     }[] 
   }): Observable<ApiResponse> { 
-    // Log the submission data for debugging
-    console.log('Submitting exam with data:', JSON.stringify(submissionData, null, 2));
+    
+    // console.log('Submitting exam with data:', JSON.stringify(submissionData, null, 2));
 
     return this.http.post<ApiResponse>(
       `${this.apiUrl}/results/submit`, 
       submissionData, 
       { 
         headers: this.getAuthHeaders(),
-        // Add error response type to get full error details
+        
         observe: 'response'
       }
     ).pipe(
       map(response => response.body as ApiResponse),
       catchError(error => {
-        // Log detailed error information
+        
         console.error('Submit exam error details:', {
           status: error.status,
           statusText: error.statusText,
@@ -288,17 +288,17 @@ export class BackendService {
           message: error.message
         });
 
-        // Check if it's a validation error
+        
         if (error.status === 400) {
           return throwError(() => new AppError('Invalid exam submission. Please check your answers and try again.', error.status));
         }
         
-        // Check if it's an exam not found error
+        
         if (error.status === 404) {
           return throwError(() => new AppError('Exam not found or no longer available.', error.status));
         }
 
-        // For 500 errors, try to extract meaningful information
+        
         if (error.status === 500) {
           const serverError = error.error?.message || error.error?.error?.message || 'An internal server error occurred';
           return throwError(() => new AppError(`Server error: ${serverError}`, error.status));

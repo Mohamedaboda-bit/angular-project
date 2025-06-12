@@ -1,4 +1,4 @@
-<!-- Navigation Bar -->
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
   <div class="container-fluid">
     <a class="navbar-brand text-white fw-bold">Admin Dashboard</a>
@@ -20,7 +20,7 @@
 </nav>
 
 <div class="container py-4">
-  <!-- Loading State -->
+  
   @if (loading) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
@@ -29,17 +29,17 @@
     </div>
   }
 
-  <!-- Error Alert -->
+  
   @if (error) {
     <div class="alert alert-danger mb-4">
       {{ error }}
     </div>
   }
 
-  <!-- Content -->
+  
   @if (!loading) {
     <div class="row g-4">
-      <!-- Stats Cards -->
+      
       <div class="col-md-4">
         <div class="card h-100 shadow rounded-4 border-0">
           <div class="card-body text-center">
@@ -65,7 +65,7 @@
         </div>
       </div>
 
-      <!-- Exams Table -->
+      
       <div class="col-12">
         <div class="card shadow rounded-4 border-0">
           <div class="card-body">
@@ -96,7 +96,7 @@
                       <td>{{(exam.questions || []).length}} questions</td>
                       <td>{{(exam.questions || []).length * 2}} marks</td>
                       <td>
-                        <span class="badge px-3 py-2 fs-6" [class.bg-success]="exam.isActive" [class.bg-secondary]="!exam.isActive">
+                        <span class="badge px-3 py-2 fs-6 cursor-pointer" [class.bg-success]="exam.isActive" [class.bg-secondary]="!exam.isActive" (click)="toggleExamStatus(exam)">
                           {{exam.isActive ? 'Active' : 'Inactive'}}
                         </span>
                       </td>
@@ -126,13 +126,13 @@
         </div>
       </div>
 
-      <!-- Results Table -->
+      
       <div class="col-12">
         <div class="card shadow rounded-4 border-0">
           <div class="card-body">
             <h5 class="card-title mb-4 fw-semibold">Exam Results</h5>
 
-            <!-- Loading State -->
+            
             @if (loadingResults) {
               <div class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
@@ -141,7 +141,7 @@
               </div>
             }
 
-            <!-- Results Table -->
+            
             @if (!loadingResults) {
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -157,7 +157,7 @@
                   <tbody>
                     @for (result of examResults; track result._id) {
                       <tr>
-                        <td>{{result.student?.name || 'Unknown Student'}}</td>
+                        <td>{{result.student?.username || 'Unknown Student'}}</td>
                         <td>{{result.exam?.title || 'Unknown Exam'}}</td>
                         <td>{{result.score}} / {{result.totalQuestions}}</td>
                         <td>

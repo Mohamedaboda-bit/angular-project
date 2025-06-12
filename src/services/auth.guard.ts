@@ -28,7 +28,7 @@ export class AuthNavigationGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean {
-    // If user is logged in and tries to access login page, redirect them
+    
     if (this.backendService.isLoggedIn()) {
       const userData = this.backendService.getUserData();
       if (userData?.role === 'admin') {
