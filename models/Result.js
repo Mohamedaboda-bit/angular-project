@@ -13,16 +13,16 @@ const resultSchema = new mongoose.Schema({
     },
     answers: [
         {
-            questionId: { // Store the _id of the question from the Exam's questions array
+            questionId: { 
                 type: mongoose.Schema.Types.ObjectId,
                 required: true
             },
-            questionText: { // Store text for easier display, though redundant
+            questionText: { 
                 type: String,
                 required: true
             },
             selectedOption: {
-                type: String, // Store the answer selected by the student
+                type: String, 
                 required: true
             },
             isCorrect: {
@@ -47,9 +47,8 @@ const resultSchema = new mongoose.Schema({
         min: 0,
         max: 100
     }
-}, { timestamps: true }); // Adds createdAt and updatedAt
+}, { timestamps: true }); 
 
-// Ensure a student can take a specific exam only once
 resultSchema.index({ student: 1, exam: 1 }, { unique: true });
 
 const Result = mongoose.model("Result", resultSchema);
