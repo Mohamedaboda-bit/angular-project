@@ -2,14 +2,23 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { StudentHomeComponent } from './home/home';
+import { StudentHomeComponent } from './home/home.component';
 import { ExamComponent } from './exam/exam.component';
 import { AuthGuard } from '../../../services/auth.guard';
+import { ResultsComponent } from './results/results.component';
+import { StudentLayoutComponent } from './student-layout.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: StudentHomeComponent },
-  { path: 'exam/:id', component: ExamComponent }
+  {
+    path: '',
+    component: StudentLayoutComponent,
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', component: StudentHomeComponent },
+      { path: 'exam/:id', component: ExamComponent },
+      { path: 'results', component: ResultsComponent }
+    ]
+  }
 ];
 
 @NgModule({
@@ -18,7 +27,9 @@ const routes: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(routes),
     StudentHomeComponent,
-    ExamComponent
+    ExamComponent,
+    ResultsComponent,
+    StudentLayoutComponent
   ],
   exports: [RouterModule]
 })
