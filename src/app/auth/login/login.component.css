@@ -1,0 +1,92 @@
+/* Login-specific animations and enhancements */
+.login-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.login-box {
+  position: relative;
+  overflow: hidden;
+}
+
+.login-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, #4a90e2, #357abd);
+  animation: slidein 1s ease-out forwards;
+}
+
+.login-form {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.form-group {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.login-button {
+  margin-top: 1.5rem;
+}
+
+.signup-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #6c757d;
+  animation: fadeIn 0.5s ease-out 0.3s forwards;
+}
+
+.alert {
+  margin-top: 1rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slidein {
+  to { left: 0; }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Custom focus styles for login inputs */
+.login-form input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Enhanced toggle button styles */
+.auth-toggle {
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+}
+
+.toggle-btn.active {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+} 
